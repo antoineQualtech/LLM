@@ -3,11 +3,6 @@ import sys
 import ollama
 import Database
 import Embedding
-import chromadb
-import chromadb.utils.embedding_functions as embedding_functions
-from chromadb import Documents, EmbeddingFunction, Embeddings
-#import uuid
-from langchain_ollama import OllamaLLM
 import Program
 
 PROMPT_TEMPLATE = """
@@ -33,8 +28,8 @@ class Program:
         client =  self.db
 
         ####delete remove#######
-        client.getClientDB().delete_collection(self.collection)
-        client.getClientDB().create_collection(self.collection)
+        client.get_client_db().delete_collection(self.collection)
+        client.get_client_db().create_collection(self.collection)
 
         #directory = os.fsencode("data")
         for file in os.listdir(self.folderpath):
@@ -49,20 +44,16 @@ class Program:
                 except Exception as e:
                      print(f"👉 Could not add {filepath} to documents : " + repr(e))    
 
-        client =  self.db
-        myCollection =  client.getCollection(colname=self.collection)
-        print(myCollection.get(include=[]) )    
+        #myCollection =  client.getCollection(colname=self.collection)
+        #print(client.getCollection(include=[]) )    
 
     #process le file et insert in db
     def processfile(self,filepath):
         #access la db
         client =  self.db
 
-        #embedder par défaut
-        #default_ef = self.embedder.embeddingfunc()
-
         #ma collection
-        myCollection =  client.getCollection(colname=self.collection)
+        myCollection =  client.get_collection(colname=self.collection)
      
         #load le file
         docs = self.embedder.loaddocument(filepath)
@@ -100,12 +91,8 @@ class Program:
             embeddings = []
 
             try:
+                #embed
                 embeddings = self.embedder.embeddoc(new_chunk_docs)
-
-                #print(new_chunk_ids[0])
-                #print(new_chunk_metadatas)
-                #print(new_chunk_docs[0])
-                #print(embeddings[0])
 
                 #ajout à la db
                 myCollection.add(
@@ -121,11 +108,9 @@ class Program:
         
     #questions 
     def questionllm(self,question):
+        #l'instance de la db
+        client = self.db.client
 
-        client = self.db.getClientDB()
-
-        #llm = OllamaLLM(model="llama2")
-        #llm.repeat_penalty
         collection = client.get_collection(name=self.collection)
 
         query = question
@@ -170,9 +155,9 @@ class Program:
         program = Program.Program()
 
         print("test---------")
-        #program.readfiles()
-        question = "Where is Qualtech?"
-        result = program.questionllm(question) 
+        program.readfiles()
+        #question = "Where is Qualtech?"
+        #result = program.questionllm(question) 
 
         #print(result)
         

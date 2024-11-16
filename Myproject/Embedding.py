@@ -6,6 +6,7 @@ import ollama
 class Embedding:
 
     def __init__(self):
+        #embedder
         self.embedder = OllamaEmbeddings(model="nomic-embed-text")
 
     def loaddocument(self,filepath):
