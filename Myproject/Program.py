@@ -24,28 +24,44 @@ class Program:
         self.embedder = Embedding.Embedding()
 
     #loop les fichiers dans le dossier data
-    def readfiles(self):
-        client =  self.db
+    def process_directory(self, folderpath=None):
+
+        client = self.db
 
         ####delete remove#######
         client.get_client_db().delete_collection(self.collection)
         client.get_client_db().create_collection(self.collection)
 
-        #directory = os.fsencode("data")
-        for file in os.listdir(self.folderpath):
-            filename = os.fsdecode(file)
-            filepath = os.path.join(self.folderpath, filename)
+        if folderpath is None:
+            folderpath = self.folderpath  
 
-            # Process les PDF files
-            if filename.endswith(".pdf"):
-                #print(f"Filepath: {filepath}")
-                try:  
-                    self.processfile(filepath)
-                except Exception as e:
-                     print(f"👉 Could not add {filepath} to documents : " + repr(e))    
+        try:
+            for filename in os.listdir(folderpath):
+                filepath = os.path.join(folderpath, filename)
+                
+                #si dir rentre  
+                if os.path.isdir(filepath):
+                    self.process_directory(filepath)  
 
-        #myCollection =  client.getCollection(colname=self.collection)
-        #print(client.getCollection(include=[]) )    
+                #si pdf
+                elif filename.endswith(".pdf"):
+                    try:
+                        self.processfile(filepath)
+                    except Exception as e:
+                        print(f"👉 Could not add {filepath} to documents: " + repr(e))
+
+                #si docx
+                elif filename.endswith(".docx"):
+                    print("Traiter DOCX") 
+                    #try:
+                    #    self.processfile(filepath)
+                    #except Exception as e:
+                    #    print(f"👉 Could not add {filepath} to documents: " + repr(e))        
+
+
+
+        except Exception as e:
+            print(f"Error processing {folderpath}: {repr(e)}")
 
     #process le file et insert in db
     def processfile(self,filepath):
@@ -78,10 +94,6 @@ class Program:
         for chunk in chunks_with_ids:
             if chunk.metadata["id"] not in existing_ids:
                 new_chunks.append(chunk)
-
-        #print(new_chunks[0].metadata["id"])
-        #print(new_chunks[0].metadata)
-        #print(new_chunks[0].page_content)
         
         if len(new_chunks):
             print(f"👉 Adding new documents: {len(new_chunks)} from source :"+filepath)
@@ -155,9 +167,9 @@ class Program:
         program = Program.Program()
 
         print("test---------")
-        program.readfiles()
-        #question = "Where is Qualtech?"
-        #result = program.questionllm(question) 
+        #program.process_directory()
+        question = "What is qualtech?"
+        result = program.questionllm(question) 
 
         #print(result)
         
