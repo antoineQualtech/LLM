@@ -17,8 +17,10 @@ PROMPT_TEMPLATE = """
 
 class Program:
 
+    # 10.4.100.77 numéro de serveur  "//10.4.100.77/AntoineTMP/"
+
     def __init__(self):
-        self.folderpath = "data"
+        self.folderpath = os.path.join('/', 'home','qualtechuser','ArchiveClient')
         self.collection = "antoine_test"
         self.db = Database.Database()
         self.embedder = Embedding.Embedding()
@@ -29,8 +31,8 @@ class Program:
         client = self.db
 
         ####delete remove#######
-        client.get_client_db().delete_collection(self.collection)
-        client.get_client_db().create_collection(self.collection)
+        #client.get_client_db().delete_collection(self.collection)
+        #client.get_client_db().create_collection(self.collection)
 
         if folderpath is None:
             folderpath = self.folderpath  
@@ -165,9 +167,15 @@ class Program:
 
     if __name__ == "__main__":
         program = Program.Program()
+        client = program.db
+
+        ####delete remove#######
+        #client.get_client_db().delete_collection(program.collection)
+        #client.get_client_db().create_collection(program.collection)
 
         print("test---------")
         #program.process_directory()
+
         question = "What is qualtech?"
         result = program.questionllm(question) 
 

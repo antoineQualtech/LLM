@@ -2,7 +2,7 @@ import os
 import chromadb
 
 class Database:
-    def __init__(self, host="localhost", port="8000"):
+    def __init__(self, host="172.17.0.1", port="8001"):
         self.host = host  # IP address
         self.port = port  # Port number
         self.client = self.get_client_db()
