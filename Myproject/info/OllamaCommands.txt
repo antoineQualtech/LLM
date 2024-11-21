@@ -1,0 +1,42 @@
+--LLM
+ollama -v
+ollama pull llama2
+ollama serve
+
+//pour arrêter
+netstat -ano | findstr :11434
+tasklist /PID 4316
+
+virtual env start :
+python -m venv .venv 
+source .venv/Scripts/activate 
+
+avec flask 
+virtualenv flask
+source flask/bin/activate
+pip install flask
+
+
+-- chroma setup
+docker pull chromadb/chroma
+docker run -d -p 8000:8000 -v chroma-data:/chromadb/data chromadb/chroma
+
+-- test chroma api
+http://localhost:8000/api/v1/collections
+
+
+
+--mount archive 
+sudo mount -t cifs //10.4.100.77/AntoineTMP/ /home/qualtechuser/ArchiveClient/ -o username=forant.sa,password=T@pisBl3uCor
+
+--azure garbage
+pip install --upgrade --quiet  langchain langchain-community azure-ai-documentintelligence
+pip install --upgrade --quiet  docx2txt
+pip install unstructured
+pip install python-magic
+pip install python-pptx
+pip install --upgrade --quiet langchain-community unstructured openpyxl
+pip install networkx
+pip install pandas
+
+https://api.python.langchain.com/en/latest/document_loaders/langchain_community.document_loaders.doc_intelligence.AzureAIDocumentIntelligenceLoader.html
