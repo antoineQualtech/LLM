@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
 from classes.Program import Program
+from flask_cors import CORS
 import json
 import os
 
 app = Flask(__name__)
+cors = CORS(app,resources={r'/q-a':{'origins':'*'}})
 
 program = Program() # le programme 
 PASSWORD = "siado123"
@@ -36,10 +38,11 @@ def questionLLM():
 
     data = request.get_json()
 
-    if not data or "question" not in data:
+    if not data or ("question" and "withLLMAnswer") not in data:
         return jsonify({"msg": "Missing 'question' in request body"}), 400
 
     question = data["question"]
+    withLLMAnswerdata = data["withLLMAnswer"]
 
     retData = {
         "msg": "",
@@ -49,7 +52,7 @@ def questionLLM():
 
     try:
         # Use the program to ask the question
-        response, docs_with_uris = program.question_processor.questionllm(question)
+        response, docs_with_uris = program.question_processor.questionllm(question,withLLMAnswerdata)
         retData["response"] = response
         retData["sources"] = docs_with_uris
     except Exception as e:

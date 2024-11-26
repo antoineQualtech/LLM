@@ -7,7 +7,7 @@ class Chat:
         self.collection = collection
 
     #poser les questions
-    def questionllm(self, question):
+    def questionllm(self, question,withLLMAnswer):
 
         #L'instance de la DB
         client = self.db.client
@@ -29,17 +29,21 @@ class Chat:
         for i, source in enumerate(sources):
             docsWithUris.append({"uri": source["source"], "doc": docs[i]})
 
-        output = ollama.generate(
-            model="llama2",
-            prompt=f"Using this data: {dataForAi}. Respond to this prompt: {query}"
-        )
+        output = ""
+        if withLLMAnswer == True :
+                output = ollama.generate(
+                model="llama2",
+                prompt=f"Using this data: {dataForAi}. Respond to this prompt: {query}"
+            )
+        
 
-        print("Réponse AI  " + output['response'])
-        print("\n\nLes sources   \n")
-        for docWithUri in docsWithUris:
-            print("﫱﫱﫱﫱")
-            print(f"URI : {docWithUri['uri']}  DOC : {docWithUri['doc']}")
-            print("﫱﫱﫱﫱")
-            print("")
+
+        #print("Réponse AI  " + output['response'])
+        #print("\n\nLes sources   \n")
+        #for docWithUri in docsWithUris:
+        #    print("﫱﫱﫱﫱")
+        #    print(f"URI : {docWithUri['uri']}  DOC : {docWithUri['doc']}")
+         #   print("﫱﫱﫱﫱")
+         #   print("")
 
         return output, docsWithUris
