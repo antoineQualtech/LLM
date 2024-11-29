@@ -137,4 +137,4 @@ class FileLoader:
             except Exception as e:
                 print(f"Error pendant l'embedding: {e}")
         else: 
-            print("👉 Pas new chunks fichier embeded")
+            print("👉 Pas de new chunks fichier deja embeded")

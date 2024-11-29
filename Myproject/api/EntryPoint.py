@@ -38,11 +38,12 @@ def questionLLM():
 
     data = request.get_json()
 
-    if not data or ("question" and "withLLMAnswer") not in data:
+    if not data or ("question" and "withLLMAnswer" and "nbSource") not in data:
         return jsonify({"msg": "Missing 'question' in request body"}), 400
 
     question = data["question"]
     withLLMAnswerdata = data["withLLMAnswer"]
+    nbSourcedata = data["nbSource"]
 
     retData = {
         "msg": "",
@@ -52,7 +53,7 @@ def questionLLM():
 
     try:
         # Use the program to ask the question
-        response, docs_with_uris = program.question_processor.questionllm(question,withLLMAnswerdata)
+        response, docs_with_uris = program.question_processor.questionllm(question,withLLMAnswerdata,nbSourcedata)
         retData["response"] = response
         retData["sources"] = docs_with_uris
     except Exception as e:
@@ -71,8 +72,7 @@ def resetDB(passw):
 
     if passw == PASSWORD:
         retData["msg"] = "Database reset"
-        program.db.get_client_db().delete_collection(program.collection)
-        program.db.get_client_db().create_collection(program.collection)
+        program.db.reset_collection()
         return jsonify(retData), 200
     else:
         retData["msg"] = "Password Invalid"     
