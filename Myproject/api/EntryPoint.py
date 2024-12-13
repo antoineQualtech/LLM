@@ -22,7 +22,7 @@ def embedFiles(passw):
     if passw == PASSWORD:
         #executer le embedding
         try:
-            program.process_directory()
+            program.process_root()
             retData["msg"] = "Embedding done"
             return jsonify(retData), 200
         except Exception as e:
@@ -36,14 +36,27 @@ def embedFiles(passw):
 @app.route("/q-a",  methods=["POST"])
 def questionLLM():
 
+    ##data =  request.get_json()
+    
     data = request.get_json()
+    ##test = json.loads(request.get_json())
+    print(data)
 
-    if not data or ("question" and "withLLMAnswer" and "nbSource") not in data:
-        return jsonify({"msg": "Missing 'question' in request body"}), 400
+    if not data or not all(key in data for key in ["question", "withLLMAnswer", "nbSource"]):
+        return jsonify({"msg": "Missing required fields in request body"}), 400
+
+    ##if not data or ("question" and "withLLMAnswer" and "nbSource") not in data:
+    ##    return jsonify({"msg": "Missing 'question' in request body"}), 400
 
     question = data["question"]
     withLLMAnswerdata = data["withLLMAnswer"]
     nbSourcedata = data["nbSource"]
+
+    if not isinstance(withLLMAnswerdata, bool):
+        withLLMAnswerdata = bool(withLLMAnswerdata)
+
+    if not isinstance(nbSourcedata, int):
+        nbSourcedata = int(nbSourcedata)
 
     retData = {
         "msg": "",

@@ -1,6 +1,7 @@
 import os
 import sys
 import ollama
+import json
 from classes.Embedding import Embedding
 from classes.Database import Database
 from classes.Chat import Chat
@@ -20,8 +21,30 @@ class Program:
         )
         self.question_processor = Chat(self.db, self.collection)
 
-    def process_directory(self):
-        self.directory_processor.process_directory()
+    def process_root(self):
+        
+         #limit a 5 temporairement
+        nbdossier = 5 #base
+        json_file_path = 'api/configfile/config.json'
+        try:
+            with open(json_file_path, 'r') as file:
+                data = json.load(file)
+                nbdossier = data["nbdossier"]
+        except FileNotFoundError:
+            print("The file does not exist.")
+        except json.JSONDecodeError:
+            print("Error decoding the JSON data.")
+        except Exception as e:
+            print(f"An unexpected error occurred: {str(e)}")     
+        
+
+        
+        dirs = os.listdir(self.folderpath)
+
+        for filename in dirs[:nbdossier]:
+            filepath = os.path.join(self.folderpath, filename)
+            if os.path.isdir(filepath):
+                self.directory_processor.process_directory(filepath)  
 
     def ask_question(self, question):
         self.question_processor.questionllm(question)

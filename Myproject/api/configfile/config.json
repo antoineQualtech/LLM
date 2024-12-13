@@ -1,5 +1,5 @@
 {
     "chunksize": 800,
-    "overlap": 50,
-    "nbdossier": 10
+    "overlap": 25,
+    "nbdossier": 50
 }

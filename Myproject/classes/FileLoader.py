@@ -9,78 +9,57 @@ class FileLoader:
         self.collection = collection
         self.db = db
         self.embedder = embedder
+        self.log_file = "log.txt"
 
     #loop les fichiers dans le dossier data
-    def process_directory(self, folderpath=None):
-        #print(os.getcwd())
-        nbdossier = 5 #base
-        json_file_path = 'api/configfile/config.json'
+    def process_directory(self, folderpath):
         try:
-            with open(json_file_path, 'r') as file:
-                data = json.load(file)
-                nbdossier = data["nbdossier"]
-        except FileNotFoundError:
-            print("The file does not exist.")
-        except json.JSONDecodeError:
-            print("Error decoding the JSON data.")
+            dirs = os.listdir(folderpath)
         except Exception as e:
-            print(f"An unexpected error occurred: {str(e)}")     
+            print(f"Error reading directory {folderpath}: {repr(e)}")
+            return
 
-        client = self.db
-        
-        if folderpath is None:
-            folderpath = self.folderpath  
-        
-        dirs = os.listdir(folderpath)
+        # Process 
+        for filename in dirs: 
+            filepath = os.path.join(folderpath, filename)
 
-        #limit a 5 temporairement
+            if os.path.isdir(filepath):
+                self.process_directory(filepath)  # Recursive
+            else:
+                self.process_file(filepath)  
+
+    #validation fichier pour processing
+    def process_file(self, filepath):
         try:
-            for filename in dirs[:nbdossier]:
-                filepath = os.path.join(folderpath, filename)
-                
-                #si dir rentre  
-                if os.path.isdir(filepath):
-                    self.process_directory(filepath)  
-
-                #si pdf
-                elif filename.endswith(".pdf"):
-                    try:
-                        self.processfile(filepath)
-                    except Exception as e:
-                        print(f"👉 Ne peux pas ajouter {filepath} aux documents: " + repr(e))
-
-                #si docx
-                elif filename.endswith(".csv"): 
-                    try:
-                        self.processfile(filepath)
-                    except Exception as e:
-                        print(f"👉 Ne peux pas ajouter {filepath} aux documents: " + repr(e))  
-
-                #si docx
-                elif filename.endswith(".docx"):
-                    try:
-                        self.processfile(filepath)
-                    except Exception as e:
-                        print(f"👉 Ne peux pas ajouter {filepath} aux documents: " + repr(e)) 
-
-                #power point    
-                #elif filename.endswith(".pptx"):
-                    #try:
-                        #self.processfile(filepath)
-                    #except Exception as e:
-                     #   print(f"👉 Ne peux pas ajouter {filepath} aux documents: " + repr(e))                
-
-                #excel   
-                elif filename.endswith(".xlsx"):
-                    try:
-                        self.processfile(filepath)
-                    except Exception as e:
-                        print(f"👉 Ne peux pas ajouter {filepath} aux documents: " + repr(e)) 
-
-
-
+        
+            if filepath.endswith(".pdf"):
+                self.processfile(filepath)  
+                print(f"Processing PDF: {filepath}")
+                self.log_to_file("->"+filepath)
+            elif filepath.endswith(".docx"):
+                self.processfile(filepath)  
+                print(f"Processing DOCX: {filepath}")
+                self.log_to_file("->"+filepath)
+            elif filepath.endswith(".csv"):
+                self.processfile(filepath)  
+                print(f"Processing CSV: {filepath}")
+                self.log_to_file("->"+filepath)
+            elif filepath.endswith(".xlsx"):
+                self.processfile(filepath)  
+                print(f"Processing XLSX: {filepath}")
+                self.log_to_file("->"+filepath)
+            else:
+                print(f"File type not supported: {filepath}")
         except Exception as e:
-            print(f"Problème lorsqu'on process {folderpath}: {repr(e)}")
+            print(f"Error processing file {filepath}: {repr(e)}")
+
+
+    def log_to_file(self, message):
+        try:
+            with open(self.log_file, 'a') as log:
+                log.write(message + '\n')
+        except Exception as e:
+            print(f"Error writing to log file: {repr(e)}")
 
     #process le file et insert in db
     def processfile(self,filepath):
@@ -113,7 +92,7 @@ class FileLoader:
         for chunk in chunks_with_ids:
             if chunk.metadata["id"] not in existing_ids:
                 new_chunks.append(chunk)
-        
+
         if len(new_chunks):
             print(f"👉 Chunks créés : {len(new_chunks)} du fichier :"+filepath)
             new_chunk_ids = [chunk.metadata["id"] for chunk in new_chunks]
@@ -133,8 +112,10 @@ class FileLoader:
                 embeddings=embeddings
             )  
                 #print(myCollection.get(include=["metadatas"]) )
-
+                ##f = open("logs.txt", "w")
+                ##f.close()
             except Exception as e:
                 print(f"Error pendant l'embedding: {e}")
         else: 
             print("👉 Pas de new chunks fichier deja embeded")
+
